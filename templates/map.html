@@ -1,0 +1,112 @@
+<!-- templates/map.html -->
+{% extends 'base.html' %}
+
+{% load leaflet_tags %}
+{% load static %}
+
+{% block extra_assets %}
+    {% leaflet_css %}
+    {% leaflet_js %}
+    <link href="{% static 'css/leaflet_map.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+<h1>Map</h1>
+
+<div>
+    {% if worldborder.lat %}
+    <h1>{{ worldborder.name }}</h1>
+    {% endif %}
+    {% leaflet_map "main" callback="map_init" %}
+    <script>
+        var mymap;
+        var currentMarker;
+
+        function map_init(map, options) {
+            // get point lat and lon
+            {% if worldborder.lat %}
+            var lon = "{{ worldborder.lon }}";
+            var lat = "{{ worldborder.lat }}";
+            {% else %}
+            var lon = -8.42582702636719;
+            var lat = 40.20945179703839;
+            {% endif %}
+
+            // zoom to point & add it to map
+            map.setView([lat, lon], 12);
+            L.marker([lat, lon]).addTo(map);
+
+            map.on("click", onMapClick);
+
+            mymap = map;
+        }
+
+        function onMapClick(e) {
+            //alert("You clicked the map at " + e.latlng);
+            var lat = e.latlng.lat;
+            var lon = e.latlng.lng;
+            //L.marker([lat, lon]).addTo(mymap); //adds marker
+            
+            if(typeof currentMarker === 'undefined') {
+                currentMarker = L.marker([lat, lon], {
+                    draggable: true
+                }).addTo(mymap)
+                .bindPopup(
+                    '<form action=\"{% url 'addpoint' %}\" method="POST">' +
+                    '{% csrf_token %}' +
+                        '<table border = "1">' +
+                            '{{form|escapejs}}' +
+                        '</table>' +
+                        '<input type="submit" value="Save" />' +
+                    '</form>')
+                .on('click', function(e) {
+                    if(currentMarker.getPopup().isPopupOpen()) {
+                        currentMarker.closePopup();
+                    }
+                    else {
+                        currentMarker.openPopup();
+                        document.getElementById('id_lat').value = e.latlng.lat;
+                        document.getElementById('id_lon').value= e.latlng.lng;
+                        document.getElementById('id_lat').readOnly = true;
+                        document.getElementById('id_lon').readOnly = true;
+                    }
+                })
+                .on('dblclick', function(e) {
+                    currentMarker.remove();
+                });  
+            }
+            else {
+                currentMarker.remove();
+                currentMarker = L.marker([lat, lon], {
+                    draggable: true
+                }).addTo(mymap)
+                .bindPopup(
+                    '<form action=\"{% url 'addpoint' %}\" method="POST">' +
+                    '{% csrf_token %}' +
+                        '<table border = "1">' +
+                            '{{form|escapejs}}' +
+                        '</table>' +
+                        '<input type="submit" value="Save" />' +
+                    '</form>')
+                .on('click', function(e) {
+                    if(currentMarker.getPopup().isPopupOpen()) {
+                        currentMarker.closePopup();
+                    }
+                    else {
+                        currentMarker.openPopup();
+                        document.getElementById('id_lat').value = e.latlng.lat;
+                        document.getElementById('id_lon').value= e.latlng.lng;
+                        document.getElementById('id_lat').readOnly = true;
+                        document.getElementById('id_lon').readOnly = true;
+                    }
+                })
+                .on('dblclick', function(e) {
+                    currentMarker.remove();
+                });    
+            }       
+        }
+    </script>
+</div>
+
+{% endblock content %}

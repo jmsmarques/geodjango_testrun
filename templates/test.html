@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load leaflet_tags %}
+
+{% block extra_assets %}
+{% leaflet_js %}
+{% leaflet_css %}
+{% endblock extra_assets %}
+
+{% block content %}
+<style>
+
+    .leaflet-container {  /* all maps */
+        width:  1350px;
+        height: 800px;
+    }
+
+    #specialbigmap {
+        height: 800px;
+    }
+
+    /* Resize the "display_raw" textbox */
+    .django-leaflet-raw-textarea {
+        width: 100%;
+    }
+
+</style>
+
+
+<body>
+    {% leaflet_map "yourmap" %}
+</body>
+
+{% endblock content %}
