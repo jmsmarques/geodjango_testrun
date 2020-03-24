@@ -3,6 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import TemplateView, DetailView, FormView
 from django.views.generic.edit import SingleObjectMixin
+from django.contrib.gis.geos import Point
 from .models import WorldBorder, GeoPoint
 from .forms import GeoPointForm
 
@@ -53,12 +54,18 @@ class AddGeoPoint(FormView):
     def form_valid(self, form):
         # Here, we would record the user's interest using the message
         # passed in form.cleaned_data['message']
-        model = GeoPoint() 
+        model_instance = GeoPoint() 
 
-        model.lat = form.cleaned_data['lat']
-        model.lon = form.cleaned_data['lon']
-        model.description = form.cleaned_data['description']
-        model.save()
+        model_instance.lat = form.cleaned_data['lat']
+        model_instance.lon = form.cleaned_data['lon']
+        model_instance.description = form.cleaned_data['description']
+
+        # Search for country where the added point is located
+        pnt = Point(model_instance.lon, model_instance.lat)
+        country = WorldBorder.objects.get(mpoly__contains=pnt)
+        model_instance.country_name = country
+
+        model_instance.save()
 
         return super(AddGeoPoint, self).form_valid(form)
 

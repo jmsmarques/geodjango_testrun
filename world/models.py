@@ -1,16 +1,6 @@
 from django.db import models
 from django.contrib.gis.db import models
 
-
-class GeoPoint(models.Model):
-    lat = models.FloatField()
-    lon = models.FloatField()
-    description = models.CharField(max_length=100, default='No description')
-
-    # Returns the string representation of the model.
-    def __str__(self):
-        return self.description
-
 class WorldBorder(models.Model):
     # Regular Django fields corresponding to the attributes in the
     # world borders shapefile.
@@ -32,6 +22,16 @@ class WorldBorder(models.Model):
     # Returns the string representation of the model.
     def __str__(self):
         return self.name
+
+class GeoPoint(models.Model):
+    lat = models.FloatField()
+    lon = models.FloatField()
+    description = models.CharField(max_length=100, default='No description')
+    country_name = models.ForeignKey(WorldBorder, on_delete=models.CASCADE, default=1)
+
+    # Returns the string representation of the model.
+    def __str__(self):
+        return self.description
 
 # Auto-generated `LayerMapping` dictionary for WorldBorder model
 worldborder_mapping = {
