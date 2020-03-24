@@ -19,7 +19,7 @@
     <h1>{{ worldborder.name }}</h1>
     {% endif %}
     {% leaflet_map "main" callback="map_init" %}
-    <script>
+    <script type="text/javascript">
         var mymap;
         var currentMarker;
 
@@ -48,63 +48,41 @@
             var lon = e.latlng.lng;
             //L.marker([lat, lon]).addTo(mymap); //adds marker
             
-            if(typeof currentMarker === 'undefined') {
-                currentMarker = L.marker([lat, lon], {
-                    draggable: true
-                }).addTo(mymap)
-                .bindPopup(
-                    '<form action=\"{% url 'addpoint' %}\" method="POST">' +
-                    '{% csrf_token %}' +
-                        '<table border = "1">' +
-                            '{{form|escapejs}}' +
-                        '</table>' +
-                        '<input type="submit" value="Save" />' +
-                    '</form>')
-                .on('click', function(e) {
-                    if(currentMarker.getPopup().isPopupOpen()) {
-                        currentMarker.closePopup();
-                    }
-                    else {
-                        currentMarker.openPopup();
-                        document.getElementById('id_lat').value = e.latlng.lat;
-                        document.getElementById('id_lon').value= e.latlng.lng;
-                        document.getElementById('id_lat').readOnly = true;
-                        document.getElementById('id_lon').readOnly = true;
-                    }
-                })
-                .on('dblclick', function(e) {
-                    currentMarker.remove();
-                });  
-            }
-            else {
+            if(typeof currentMarker !== 'undefined') {
                 currentMarker.remove();
-                currentMarker = L.marker([lat, lon], {
-                    draggable: true
-                }).addTo(mymap)
-                .bindPopup(
-                    '<form action=\"{% url 'addpoint' %}\" method="POST">' +
-                    '{% csrf_token %}' +
-                        '<table border = "1">' +
-                            '{{form|escapejs}}' +
-                        '</table>' +
-                        '<input type="submit" value="Save" />' +
-                    '</form>')
-                .on('click', function(e) {
-                    if(currentMarker.getPopup().isPopupOpen()) {
-                        currentMarker.closePopup();
-                    }
-                    else {
-                        currentMarker.openPopup();
-                        document.getElementById('id_lat').value = e.latlng.lat;
-                        document.getElementById('id_lon').value= e.latlng.lng;
-                        document.getElementById('id_lat').readOnly = true;
-                        document.getElementById('id_lon').readOnly = true;
-                    }
-                })
-                .on('dblclick', function(e) {
-                    currentMarker.remove();
-                });    
-            }       
+            }
+
+            currentMarker = L.marker([lat, lon], {
+                draggable: true
+            }).addTo(mymap)
+            .bindPopup(
+                '<form action=\"{% url 'addpoint' %}\" method="POST">' +
+                '{% csrf_token %}' +
+                    '<table border = "1">' +
+                        '{{form|escapejs}}' +
+                    '</table>' +
+                    '<input type="submit" value="Save" />' +
+                '</form>')
+            .on('click', function(e) {
+                if(!currentMarker.isPopupOpen()) {
+                    currentMarker.closePopup();
+                }
+                else { 
+                    markerOpenPopup(e.latlng.lat, e.latlng.lng);
+                }
+            })
+            .on('dblclick', function(e) {
+                currentMarker.remove();
+            });  
+            markerOpenPopup(lat, lon);
+        }
+
+        function markerOpenPopup(lat, lon) {
+            currentMarker.openPopup();
+            document.getElementById('id_lat').value = lat;
+            document.getElementById('id_lon').value= lon;
+            document.getElementById('id_lat').readOnly = true;
+            document.getElementById('id_lon').readOnly = true;
         }
     </script>
 </div>
