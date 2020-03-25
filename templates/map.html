@@ -46,9 +46,10 @@
             //alert("You clicked the map at " + e.latlng);
             var lat = e.latlng.lat;
             var lon = e.latlng.lng;
+            var markerExists = typeof currentMarker !== 'undefined';
             //L.marker([lat, lon]).addTo(mymap); //adds marker
             
-            if(typeof currentMarker !== 'undefined') {
+            if(markerExists) {
                 currentMarker.remove();
             }
 
@@ -63,27 +64,23 @@
                     '</table>' +
                     '<input type="submit" value="Save" />' +
                 '</form>')
-            .on('click', function(e) {
-                if(!currentMarker.isPopupOpen()) {
-                    currentMarker.closePopup();
-                }
-                else { 
-                    markerOpenPopup(e.latlng.lat, e.latlng.lng);
-                }
-            })
             .on('dblclick', function(e) {
                 currentMarker.remove();
+            })
+            .on('popupopen', function(e) {
+                markerFillUp(lat, lon);  
+                alert('open')
             });  
-            markerOpenPopup(lat, lon);
+            currentMarker.openPopup();
         }
 
-        function markerOpenPopup(lat, lon) {
-            currentMarker.openPopup();
+        function markerFillUp(lat, lon) {
             document.getElementById('id_lat').value = lat;
             document.getElementById('id_lon').value= lon;
             document.getElementById('id_lat').readOnly = true;
             document.getElementById('id_lon').readOnly = true;
         }
+        
     </script>
 </div>
 
